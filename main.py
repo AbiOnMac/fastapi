@@ -24,17 +24,19 @@ def connect_to_db():
             host='localhost',
             dbname='fastapi',  # Change 'database' to 'dbname'
             user="postgres",
-            password="postgres",
+            password="Abinash@2413",
             row_factory=dict_row
         )
         print("Connecting to database Successful`")
-        return conn  # Return only the connection
+        cursor = conn.cursor()
+        
+        return conn, cursor
     except Exception as e:
         print(f"An error occurred while connecting to the database: {e}")
         print("Connecting to database failed")
 
 # Establish the database connection
-db_connection = connect_to_db()
+db_connection, cursor = connect_to_db()
         
     
 
@@ -63,19 +65,15 @@ def get_welcomeMessage():
 
 @app.get("/posts")
 def get_posts():
-    with db_connection.cursor() as cur:
-        # Execute a command: 
-        cur.execute("""SELECT * FROM posts""")
-        my_posts=cur.fetchall()
-        return {"data": my_posts}
+    cursor.execute("""SELECT * FROM posts""")
+    my_posts=cursor.fetchall()
+    db_connection.commit()
+    return {"data": my_posts}
 
 @app.post("/createposts", status_code=status.HTTP_201_CREATED)
 def create_posts(post: Post):
-    print(post)
-    print(post.dict())
-    post_dict = post.dict()
-    post_dict['id']= randrange(0, 1000000)
-    my_posts.append(post_dict)
+    cursor.execute("""INSERT INTO posts (title, content, published) VALUES (%s, %s, %s) RETURNING * """, (post.title, post.content, post.published))
+    post_dict = cursor.fetchone()
     return {"data": post_dict}
 
 @app.get('/posts/{id}')
