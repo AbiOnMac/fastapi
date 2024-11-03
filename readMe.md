@@ -29,3 +29,8 @@ Docker compose postgres and php myadmin
  Find ip 
  docker container ls - LIST ALL CONTAINER
  docker inspect <CONTAINER ID> - FIND THE DETAILS ABOUT THAT CONTAINER
+
+ Connect to db from terminal - Postgres
+ psql -U postgres -d fastapi
+ then,
+ \c fastapi;
